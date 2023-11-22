@@ -21,6 +21,30 @@ android {
         sourceCompatibility rootProject.ext.javaSourceCompatibility
         targetCompatibility rootProject.ext.javaTargetCompatibility
     }
+
+    signingConfigs {
+        release {
+            storeFile file("../debug.jks")
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -33,3 +57,20 @@ dependencies {
 
     implementation project(':libusbcamera')
 }
+
+// 定义一个新的任务来复制APK文件
+task copyApk(type: Copy) {
+    from 'build/outputs/apk/release'
+    include '*.apk'
+
+    // 目标目录设置为项目根目录
+    into '../'
+
+//    // 可以根据需要重命名输出的文件
+//    rename { String fileName ->
+//        "MyApp-${versionName}.apk"
+//    }
+}
+
+// 确保在build任务完成后执行copyApk任务
+build.finalizedBy(copyApk)
